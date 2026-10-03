@@ -1,0 +1,13 @@
+.env
+.env.*
+cloudrun.env.yaml
+credentials.json
+token.json
+state.db
+.venv
+__pycache__
+.pytest_cache
+tests
+reports
+scripts
+*.md
