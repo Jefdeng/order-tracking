@@ -37,8 +37,12 @@ install uv (no admin rights needed): `curl -LsSf https://astral.sh/uv/install.sh
 
 Then:
 
-1. Save the OAuth client file as `credentials.json` in the project folder.
-2. Edit `.env`: set `GEMINI_API_KEY` and `SHEET_ID`, and leave `DRY_RUN=true`.
+1. Get the secrets. If you can read the Google Cloud project's secrets, run
+   `gcloud auth login && gcloud config set project PROJECT && scripts/bootstrap_secrets.sh`. It writes
+   `credentials.json` and `.env` (Gemini key included) without printing them. Otherwise, save the OAuth
+   client file as `credentials.json` and put your own `GEMINI_API_KEY` in `.env`.
+2. Check `.env`: `SHEET_ID` is set and `DRY_RUN=true`. Private project files (sheet links, project data)
+   live in a separate private repository; clone it into `local/`, which git ignores.
 3. `source .venv/bin/activate && python auth.py` signs in **your** Google account and writes `token.json`.
    The app reads that account's Gmail, so a dry run only sees vendor emails in your own mailbox.
 4. `python check_setup.py` should print OK on every line.

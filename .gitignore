@@ -12,3 +12,6 @@ state.db
 test.txt
 token.json
 unmatched.jsonl
+
+# Project data and one-off tools that must never be published (client, vendor and payment details)
+local/
