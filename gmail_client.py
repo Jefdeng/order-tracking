@@ -195,8 +195,17 @@ class GmailClient:
                 return ids, latest
 
     def search_message_ids(self, query: str, limit: int = 25) -> List[str]:
-        resp = self.svc.users().messages().list(userId="me", q=query, maxResults=limit).execute()
-        return [m["id"] for m in resp.get("messages", [])]
+        """Message IDs matching a Gmail search, newest first, following pages up to `limit`."""
+        ids: List[str] = []
+        page_token = None
+        while len(ids) < limit:
+            resp = self.svc.users().messages().list(
+                userId="me", q=query, maxResults=min(500, limit - len(ids)), pageToken=page_token).execute()
+            ids += [m["id"] for m in resp.get("messages", [])]
+            page_token = resp.get("nextPageToken")
+            if not page_token:
+                break
+        return ids[:limit]
 
     def get_message(self, msg_id: str) -> InboundEmail:
         msg = self.svc.users().messages().get(userId="me", id=msg_id, format="full").execute()

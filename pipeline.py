@@ -18,7 +18,7 @@ from gmail_client import GmailClient, HistoryExpired, InboundEmail
 from matching import match_update
 from models import OrderUpdate
 from sheets import ATTENTION_EVENTS, EVENT_LABEL, SheetClient, plan_update, tracked_rows
-from state import get_state
+from state import ReadOnlyState, get_state
 
 logger = logging.getLogger(__name__)
 
@@ -199,14 +199,20 @@ def process_new_mail() -> Dict[str, int]:
 
 
 def reprocess(query: str, limit: int, force: bool) -> Dict[str, int]:
-    """Run extraction on messages matching a Gmail search, ignoring the history cursor."""
+    """Run extraction on messages matching a Gmail search, ignoring the history cursor.
+
+    Oldest first, so when several emails touch the same row the newest one wins. In dry-run
+    nothing is recorded, so a test never marks real emails as handled."""
     with _lock:
-        state = get_state()
+        real = get_state()
+        state = ReadOnlyState(real) if settings.dry_run else real
         gmail = GmailClient()
         ids = gmail.search_message_ids(query, limit)
+        ids.reverse()
         if not force:
             ids = [i for i in ids if state.message(i) is None or state.message(i)[0] == "failed"]
-        logger.info("Reprocessing %d message(s) for query %r", len(ids), query)
+        logger.info("Reprocessing %d message(s) for query %r (%s)", len(ids), query,
+                    "DRY RUN" if settings.dry_run else "APPLYING TO THE SHEET")
         return process_message_ids(ids, gmail, _Services(), state)
 
 
