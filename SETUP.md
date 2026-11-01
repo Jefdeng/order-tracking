@@ -5,11 +5,11 @@ Start with **poll mode** (steps 1-7, no Pub/Sub, no ngrok). Add **Pub/Sub mode**
 
 ## 1. Python
 
-- `/usr/bin/python3` (3.9.6) is Apple's copy. Don't upgrade or modify it. Newer Google and Gemini SDK releases are dropping 3.9, so use a newer Python.
-- Homebrew already has Python 3.14.8 at `/opt/homebrew/bin/python3`. A virtualenv built from it is in `.venv/`, and the unit tests pass on it.
+- Run `scripts/setup.sh`. It builds `.venv/` with Python 3.12 (the version in `.python-version`, same as the Docker image), installs the dependencies and runs the unit tests.
+- `/usr/bin/python3` (3.9.6) is Apple's copy and too old. Don't upgrade or modify it. If the script finds no Python 3.10+, install [uv](https://docs.astral.sh/uv/) (no admin rights needed) and re-run: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- A `.venv/` copied from another computer won't work (it points at that computer's Python). Delete it and re-run the script.
 - Activate it in every new terminal: `source .venv/bin/activate`
 - In VS Code: Cmd+Shift+P -> "Python: Select Interpreter" -> `.venv`.
-- If you'd rather use a more conservative version: `brew install python@3.12`, then `rm -rf .venv && python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt -r requirements-dev.txt`
 
 ## 2. Gemini API key
 

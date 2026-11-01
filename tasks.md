@@ -61,7 +61,8 @@ Legend: `[x]` done and verified · `[ ]` open · `(R…)` requirement covered ·
 ### Housekeeping
 - [ ] T7.1 Delete `test.txt` and the local `state.db`; keep `reports/` or remove it (contains one screenshot with a public IP)
 - [ ] T7.2 Rotate the Gemini key if it was ever shared
-- [ ] T7.3 Initialise git and commit (`.env`, tokens and `cloudrun.env.yaml` are already ignored)
+- [x] T7.3 Initialise git and commit (`.env`, tokens and `cloudrun.env.yaml` are already ignored)
+- [x] T7.4 Collaboration: `CONTRIBUTING.md`, `scripts/setup.sh`, code-only `scripts/deploy.sh`, CI tests on PRs, Python pinned to 3.12
 
 ## Dropped (recorded for context)
 - Website price/lead-time/shipping crawler and the Quoted Unit Cost / Forecast columns: 55% of linked pages block automated fetches and an automated browser was blocked outright (D8).

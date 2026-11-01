@@ -44,7 +44,7 @@ You supply your own accounts. Nothing from the original author's setup is includ
   login expires after 7 days. Gmail's API only works for apps registered in a project; the project holds no email.
 - A **Gemini API key** from [Google AI Studio](https://aistudio.google.com/apikey), with billing enabled (the free tier
   is about 20 requests a day and may use your content for training).
-- **Python 3.10+**.
+- **Python 3.10+** (3.12 is what's tested and deployed; `scripts/setup.sh` finds or installs it).
 - A **Google Sheet** with this layout (column order doesn't matter, names are matched ignoring case and punctuation):
   - a tab (default name **Procurement Detail**) whose header row contains at least:
     `Room`, `Item`, `Order No`, `Item SKU`, `Status`, `Ordered`, `Shipped`, `Received`, `Estimate Arrival`,
@@ -57,19 +57,21 @@ You supply your own accounts. Nothing from the original author's setup is includ
 
 ```bash
 git clone https://github.com/Jefdeng/order-tracking && cd order-tracking
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
+scripts/setup.sh              # virtualenv, dependencies, .env from the template, unit tests
+source .venv/bin/activate
 
-cp .env.example .env          # then set GEMINI_API_KEY and SHEET_ID (the long ID in the sheet's URL)
+# edit .env: set GEMINI_API_KEY and SHEET_ID (the long ID in the sheet's URL)
 # save your OAuth client file as credentials.json in this folder
 
 python auth.py                # opens a browser, signs in, creates token.json
 python check_setup.py         # every line should say OK
-python -m pytest -q           # optional: run the unit tests
 
-python reprocess.py "newer_than:7d" --limit 5     # dry-run on recent mail: shows what it WOULD change
+python reprocess.py --since 2026-10-01 --limit 5  # dry-run on recent mail: shows what it WOULD change
 uvicorn main:app --port 8000                      # run it; polls Gmail every 15 s
 ```
+
+Working on it with others, or on a deployment that's already live? Read [CONTRIBUTING.md](CONTRIBUTING.md)
+first: it covers access, safe local runs and deploying.
 
 `DRY_RUN=true` is the default in `.env.example`: it logs exactly what it would write (with values) and writes
 nothing. Set `DRY_RUN=false` only once the log looks right. Only mail that arrives after the first run is processed;
@@ -112,7 +114,8 @@ domain will block Google's publishing account. A personal `@gmail.com` account d
 | `sheets.py` | Table detection, update rules, Needs Review / Log tabs |
 | `state.py` | SQLite and Firestore state |
 | `auth.py`, `check_setup.py`, `reprocess.py` | Sign-in, preflight check, dry-run/backfill tool |
-| `tests/` | Unit tests |
+| `scripts/setup.sh`, `scripts/deploy.sh` | Local setup; code-only deploy to the live service |
+| `tests/` | Unit tests (run by GitHub Actions on every PR) |
 
 Spec documents: [requirements.md](requirements.md) · [design.md](design.md) · [tasks.md](tasks.md).
 
