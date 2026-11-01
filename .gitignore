@@ -2,7 +2,7 @@
 .DS_Store
 .env
 .pytest_cache/
-.venv/
+.venv*/
 __pycache__/
 cloudrun.env.yaml
 credentials.json
@@ -12,3 +12,6 @@ state.db
 test.txt
 token.json
 unmatched.jsonl
+
+# Project data and one-off tools that must never be published (client, vendor and payment details)
+local/

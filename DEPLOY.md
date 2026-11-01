@@ -2,6 +2,10 @@
 
 Replace `YOUR_PROJECT_ID` and `YOUR_SHEET_ID` below with your own values.
 
+**This is the first-time setup.** To ship a change to a service that's already running, use
+`scripts/deploy.sh` (see [CONTRIBUTING.md](CONTRIBUTING.md#5-deploying)). Re-running step 4 with
+`--env-vars-file` replaces every live setting, including `DRY_RUN`.
+
 Result: Gmail pushes to Pub/Sub, Pub/Sub pushes to a private Cloud Run service, the service updates
 your sheet. Nothing runs on your laptop. Cost should stay inside the free tiers; keep the $5 budget alert.
 

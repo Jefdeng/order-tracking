@@ -172,6 +172,24 @@ class FirestoreState:
         self._doc("pending", key).delete()
 
 
+class ReadOnlyState:
+    """Wraps a state backend: reads pass through, writes are dropped.
+
+    Used for dry-run backfills, so a test run never marks real emails as already handled."""
+
+    def __init__(self, inner) -> None:
+        self._inner = inner
+
+    def get(self, key): return self._inner.get(key)
+    def message(self, msg_id): return self._inner.message(msg_id)
+    def retryable_failures(self, *a, **k): return self._inner.retryable_failures(*a, **k)
+    def list_pending(self, *a, **k): return self._inner.list_pending(*a, **k)
+    def set(self, key, value): pass
+    def record(self, msg_id, status, detail=""): pass
+    def add_pending(self, key, payload): pass
+    def remove_pending(self, key): pass
+
+
 def get_state():
     if settings.state_backend == "firestore":
         return FirestoreState()
