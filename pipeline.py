@@ -11,6 +11,7 @@ import time
 from typing import Dict, Iterable, List, Optional
 
 from google.genai import errors as genai_errors
+from googleapiclient.errors import HttpError
 
 from config import settings
 from extractor import Extractor
@@ -136,7 +137,17 @@ def process_message_ids(ids: Iterable[str], gmail: GmailClient, services: _Servi
     counts: Dict[str, int] = {}
     for pos, mid in enumerate(ids):
         try:
-            status = process_email(gmail.get_message(mid), services, state)
+            try:
+                email = gmail.get_message(mid)
+            except HttpError as e:
+                if e.resp.status != 404:
+                    raise
+                # Deleted (or moved out of reach) before we fetched it: retrying can't help.
+                logger.info("Skipped (message no longer exists): %s", mid)
+                state.record(mid, "skipped", "message deleted")
+                counts["skipped"] = counts.get("skipped", 0) + 1
+                continue
+            status = process_email(email, services, state)
         except Exception as e:  # keep going; failed messages are retried on later runs
             if _is_quota_error(e):
                 # Daily/minute quota: stop hammering the API and hold this and every remaining message.
